@@ -1,4 +1,4 @@
-# Machine Learning Project Report - Booking Cancellation Predictive Model - Fatih El Haq
+# Machine Learning Project Report - Booking Cancellation Prediction Model - Fatih El Haq
 
 ## Project Domain
 <div align="center">
