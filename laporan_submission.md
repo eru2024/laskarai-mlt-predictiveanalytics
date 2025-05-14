@@ -333,15 +333,46 @@ To interpret the results of the hotel booking cancellation prediction model, fea
 
 F1-score was chosen as the baseline for permutation importance due to its balanced consideration of both **precision** and **recall**. In the context of predicting booking cancellations, the cost of false positives (unnecessarily releasing rooms) and false negatives (failing to anticipate a cancellation) are both high. Therefore, a balanced metric like F1-score is more appropriate than accuracy, which can be misleading when dealing with class imbalance or unequal error costs.
 
-The permutation importance results highlighted the three most important features:
+| Feature                               | Importance Mean | Importance Std |
+|---------------------------------------|------------------|-----------------|
+| PRT                                   | 0.073583         | 0.001823        |
+| lead_time_norm                        | 0.071465         | 0.002175        |
+| total_of_special_requests             | 0.068611         | 0.002435        |
+| adr_norm                              | 0.056767         | 0.001475        |
+| market_segment_Offline TA/TO          | 0.033684         | 0.001872        |
+| match_room_type                       | 0.028342         | 0.001146        |
+| market_segment_Online TA              | 0.026975         | 0.001291        |
+| required_car_parking_spaces           | 0.018803         | 0.000728        |
+| customer_type_Transient-Party         | 0.017788         | 0.000621        |
+| booking_changes                       | 0.015642         | 0.001194        |
 
-1. **PRT (Portugal)** – With an importance mean of **0.0736**, the feature indicating whether a booking was made from Portugal plays a significant role in cancellation prediction. Given that over 60% of bookings come from Portugal, this binary feature captures substantial regional patterns that influence booking behavior.
+The permutation importance results as show above highlighted the three most important features:
 
-2. **lead_time_norm** – This normalized lead time feature had an importance mean of **0.0715**, showing that the time between booking and check-in is a strong predictor of cancellations. Longer lead times typically increase the likelihood of changes in customer plans, resulting in higher cancellation risks.
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/mean_prob_prt.jpg" alt="Problem Analysis Diagram" width="50%">
+</div>
+<br>
 
-3. **total_of_special_requests** – With an importance mean of **0.0686**, the number of special requests made by the guest reflects engagement and commitment. Bookings with more requests are less likely to be canceled, possibly because such guests have stronger intentions to complete their stay.
+1. **PRT (Portugal)** – This binary feature (1: country is Portugal, 0: other) had the highest importance mean at **0.0736**. Analysis of booking behavior shows a clear pattern: bookings from Portugal have a significantly higher cancellation probability (**57.5%**) compared to those from other countries (**25.4%**). This strong contrast in behavior makes the PRT feature a key predictor in the model.
 
-These insights support more informed decisions in hotel operations, particularly in **customer segmentation, targeted retention efforts**, and **resource planning**, allowing hotels to better manage expected occupancy and reduce the financial impact of last-minute cancellations.
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/mean_prob_lead_time.jpg" alt="Problem Analysis Diagram" width="50%">
+</div>
+<br>
+
+2. **lead_time** – With an importance mean of **0.0715**, the normalized lead time between the booking date and check-in date proves to be a strong indicator of cancellation likelihood. The longer the lead time, the higher the chance of cancellation. Cancellations increase steadily from **37.3%** in the 4–104 day interval to **81.8%** in the 504–604 day range, eventually reaching **100%** in the longest lead time range (604–704 days). This trend highlights the risk of long-term bookings and emphasizes the need for closer monitoring or flexible policies for such cases.
+
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/mean_prob_special_requests.jpg" alt="Problem Analysis Diagram" width="50%">
+</div>
+<br>
+
+3. **total_of_special_requests** – This feature, with an importance mean of **0.0686**, reflects the level of customer engagement through requests made during booking. The data shows that bookings with **no special requests** have a cancellation rate of **49.1%**, while those with **five special requests** drop sharply to only **7.6%**. This pattern suggests that guests who invest effort in customizing their stay are more likely to follow through with their bookings.
+
+These insights provide valuable inputs for hotel management to improve **operational forecasting**, **tailored customer retention strategies**, and **revenue optimization**, ultimately reducing the impact of cancellations on business performance.
+
+## Conclusion
+
 
 ## References
 Antonio, N., De Almeida, A., & Nunes, L. (2019). Big Data in Hotel Revenue Management: Exploring Cancellation Drivers to Gain Insights Into Booking Cancellation Behavior. Cornell Hospitality Quarterly, 60(4), 298–319. https://doi.org/10.1177/1938965519851466
