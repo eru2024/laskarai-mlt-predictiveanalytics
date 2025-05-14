@@ -146,10 +146,88 @@ Continuous variables like **lead_time**, **adr**, and **days_in_waiting_list** m
 </div>
 <br>
 
-**Rubrik/Kriteria Tambahan (Opsional)**:
-- Melakukan beberapa tahapan yang diperlukan untuk memahami data, contohnya teknik visualisasi data atau exploratory data analysis.
+Bar graphs for each categorical features show that:
+- Only **deposit_type** that shows visually significant difference between canceled bookings and non-canceled bookings.
+- bookings with is_canceled equal 1 has two **reservation_status** (Canceled or No Show). This shows redudancy between is_canceled and reservation_status
+
+The signifance of correlation between categorical features and is_canceled can be evaluated on the difference within categorical features with Chi-Squared test.
+
+| Variable                  | Chi² Statistic | P-Value | Degrees of Freedom | Conclusion                                                                                           |
+|---------------------------|---------------:|--------:|-------------------:|------------------------------------------------------------------------------------------------------|
+| hotel                     |      2,154.441 |   0.000 |                  1 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| arrival_date_month        |        554.097 |   0.000 |                 11 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| meal                      |        305.210 |   0.000 |                  4 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| market_segment            |      8,393.078 |   0.000 |                  6 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| distribution_channel      |      3,646.293 |   0.000 |                  4 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| reserved_room_type        |        638.159 |   0.000 |                  8 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| assigned_room_type        |      4,783.708 |   0.000 |                 10 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| deposit_type              |     27,515.935 |   0.000 |                  2 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| customer_type             |      2,281.962 |   0.000 |                  3 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+| reservation_status        |    118,715.000 |   0.000 |                  2 | Reject H₀ – significant difference between is_canceled = 0 and is_canceled = 1.                       |
+
+#### Numerical Features
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/multivariate_numerical.jpg" alt="Problem Analysis Diagram" width="100%">
+</div>
+<br>
+
+The heatmap visualizes pairwise correlation between numerical features. Absolute value from the correlation value shows correlation strength between the pair of numerical features. For prediction model, it is more better to select features with high correlation with target variabel (for this project, is_canceled) and not select features with high correlation with other than target variabel due to potential correlation issue. For example, lead_time and total_of_special_requests are great features candidate for prediction model because of high correlation with is_canceled and low correlation with other features.
+
+The signifance of correlation between numerical features and is_canceled can also be evaluated by statistical test on pearson correlation.
+
+| Feature                          | Correlation | P-value        | Significance     |
+|----------------------------------|-----------:|---------------:|:-----------------|
+| lead_time                        |    0.291417 | 0.000000e+00   | Significant      |
+| arrival_date_year                |    0.016635 | 9.933873e-09   | Significant      |
+| arrival_date_week_number         |    0.007545 | 9.330803e-03   | Significant      |
+| arrival_date_day_of_month        |   -0.005952 | 4.029552e-02   | Significant      |
+| stays_in_weekend_nights          |   -0.002290 | 4.301691e-01   | Not Significant  |
+| stays_in_week_nights             |    0.024727 | 1.584766e-17   | Significant      |
+| adults                           |    0.058846 | 1.491891e-91   | Significant      |
+| children                         |    0.004568 | 1.155424e-01   | Not Significant  |
+| babies                           |   -0.032598 | 2.760390e-29   | Significant      |
+| is_repeated_guest                |   -0.084100 | 2.940225e-185  | Significant      |
+| previous_cancellations           |    0.109932 | 7.871143e-316  | Significant      |
+| previous_bookings_not_canceled   |   -0.055488 | 1.346099e-81   | Significant      |
+| booking_changes                  |   -0.145109 | 0.000000e+00   | Significant      |
+| days_in_waiting_list             |    0.054134 | 9.477144e-78   | Significant      |
+| adr                              |    0.046283 | 2.618103e-57   | Significant      |
+| required_car_parking_spaces      |   -0.194998 | 0.000000e+00   | Significant      |
+| total_of_special_requests        |   -0.235860 | 0.000000e+00   | Significant      |
+| total_guests                     |    0.041802 | 4.529052e-47   | Significant      |
+
+#### Geolocation Feature
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/bookings_country.jpg" alt="Problem Analysis Diagram" width="75%">
+</div>
+<br>
+
+The dataset includes a geolocation feature represented by the `country` variable, indicating the country of origin for each booking. Upon analysis, it was found that bookings from Portugal (PRT) account for more than 60% of the total, significantly dominating the distribution. This high imbalance reduces the overall usefulness of the `country` variable in its original form for predictive modeling.
+
+To address this, the `country` feature was simplified into a binary variable indicating whether the booking originated from Portugal (PRT) or not. This transformation retains the influence of the dominant country while reducing dimensionality and preventing overfitting during model training.
+
+### Summary of EDA
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/summary_eda.jpg" alt="Problem Analysis Diagram" width="100%">
+</div>
+<br>
+
+Exploratory analysis identified strong associations between several categorical variables (hotel, meal, market_segment, room types, deposit_type, customer_type, reservation_status) and the target (`is_canceled`), confirmed by chi-square tests. Encoding strategies include binary or one-hot transformation for these features to preserve their predictive power while avoiding unnecessary dimensionality.
+
+Numeric features with significant correlations (lead_time, stays, previous_cancellations, booking_changes, waiting_list days, ADR, parking, special requests, total_guests) were scaled to standardize distributions. Redundant or weak predictors (arrival_date_year, stays_in_weekend_nights, stays_in_week_nights, adults, children, babies, is_repeated_guest) were removed or replaced by derived features to reduce multicollinearity.
+
+New binary and aggregated features were suggested to capture key behaviors:  
+- `PRT` flag for Portugal bookings (over 60% of total)  
+- `match_room_type` to unify reserved vs. assigned room categories  
+- `has_weekend_stay`, `total_stay_duration` for combined weekend/weekday nights  
+- `has_children`, `has_babies` instead of raw counts  
+- `changes_made`, `was_on_waiting_list`, `parking_requested`, `has_special_requests` to reflect customer actions  
+
+This summary shows balancing of dimensionality reduction, meaningful feature representation, and model robustness.
 
 ## Data Preparation
+### Feature Engineering Summary
+
 Pada bagian ini Anda menerapkan dan menyebutkan teknik data preparation yang dilakukan. Teknik yang digunakan pada notebook dan laporan harus berurutan.
 
 **Rubrik/Kriteria Tambahan (Opsional)**: 
