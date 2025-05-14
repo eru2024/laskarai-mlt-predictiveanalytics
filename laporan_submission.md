@@ -1,5 +1,17 @@
 # Machine Learning Project Report - Booking Cancellation Prediction Model - Fatih El Haq
 
+## Executive Summary
+
+Booking cancellations pose a significant challenge for hotel operations, impacting revenue forecasts, resource allocation, and overall business efficiency. This project addresses two key objectives: identifying the most influential factors contributing to booking cancellations and developing a predictive model capable of accurately forecasting such events.
+
+To begin, a structured feature selection process was implemented using statistical methods. Categorical variables were evaluated through Chi-Square tests, while numerical variables were assessed using correlation analysis. This ensured that only statistically relevant features were considered during model development.
+
+Multiple classification algorithms were tested, including Logistic Regression, K-Nearest Neighbors, Decision Tree, Random Forest, and Gradient Boosting. After evaluation using Precision, Recall, and F1-score, the Random Forest model emerged as the best performer with an F1-score of 0.91. This indicates a strong balance between identifying actual cancellations and avoiding false positives, which is crucial for operational decision-making.
+
+To interpret the model and determine feature influence, permutation importance was applied using the F1-score as the performance baseline. The analysis revealed that bookings made through travel agencies (PRT), lead time, and the total number of special requests were the top three predictors of cancellation. Bookings with longer lead times and those made through travel agencies showed a higher likelihood of cancellation, while reservations with more special requests were less likely to be canceled.
+
+The combination of statistical analysis, machine learning modeling, and feature interpretation provides valuable insights for hotel management. By understanding cancellation patterns and deploying a reliable predictive model, hotels can improve resource planning, minimize revenue loss from late cancellations, and enhance overall booking strategy.
+
 ## Project Domain
 <div align="center">
     <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/background.jpg" alt="Problem Analysis Diagram" width="50%">
@@ -373,6 +385,20 @@ These insights provide valuable inputs for hotel management to improve **operati
 
 ## Conclusion
 
+This project was designed to address two key challenges in hotel booking management: understanding the primary factors driving booking cancellations and building a predictive model capable of accurately forecasting such cancellations. To meet these goals, the project followed a structured approach that began with feature selection, continued with model development, and concluded with model interpretation through feature importance analysis.
+
+To identify the most influential features, statistical methods were applied before model training. For **categorical features**, a **Chi-Square test of independence** was conducted to assess whether there was a significant association between each feature and the target variable (cancellation status). Features with p-values below the significance threshold (typically 0.05) were considered statistically relevant. For **numerical features**, **Pearson correlation tests** were used to determine the strength and direction of the relationship between each numerical variable and the cancellation label. Features that showed moderate to strong correlation were retained for modeling.
+
+After model development, **Permutation Importance** was applied to the best-performing model to evaluate each feature’s impact on prediction performance. This technique measures how much the model's performance (based on the F1-score) decreases when a feature’s values are randomly shuffled. Features causing greater performance drops are interpreted as more important. The **F1-score** was selected as the baseline metric due to its ability to balance **Precision** and **Recall**. This is especially important in cancellation prediction, where both false positives (e.g., incorrectly flagging a booking as likely to cancel) and false negatives (e.g., missing an actual cancellation) have financial implications such as unnecessary overbooking strategies or missed opportunities for reallocating rooms—ultimately affecting revenue and operational efficiency.
+
+Based on the permutation importance results, the **top three most influential features** were:
+- **PRT (previous reservation through a travel agency):** Bookings made through travel agencies were significantly more likely to be canceled (57.5%) compared to those without such history (25.4%).
+- **Lead time:** A clear upward trend was observed where cancellation probability increased with longer booking lead times. For example, bookings made between 504–604 days in advance had a cancellation probability of 81.8%, and bookings beyond 604 days were always canceled.
+- **Total of special requests:** Guests with more special requests were less likely to cancel. Cancellation probability dropped from 49.1% for those with no requests to just 7.6% for those with five requests.
+
+To determine the best model for cancellation prediction, five classification algorithms were tested and evaluated: Logistic Regression, K-Nearest Neighbors, Decision Tree, Random Forest, and Gradient Boosting. Each model underwent hyperparameter tuning where necessary. Among them, the **Random Forest** model achieved the best results with a **Precision of 0.91**, **Recall of 0.90**, and an **F1-score of 0.91**. This indicates strong predictive capability and reliability in identifying both actual cancellations and non-cancellations.
+
+In conclusion, the project successfully identified the most predictive features using a combination of statistical testing and model-based feature importance, and developed a highly accurate machine learning model. These insights empower hotel managers to better anticipate cancellations, optimize room allocation, and improve decision-making around pricing and promotions—ultimately contributing to more effective resource planning and cost control.
 
 ## References
 Antonio, N., De Almeida, A., & Nunes, L. (2019). Big Data in Hotel Revenue Management: Exploring Cancellation Drivers to Gain Insights Into Booking Cancellation Behavior. Cornell Hospitality Quarterly, 60(4), 298–319. https://doi.org/10.1177/1938965519851466
