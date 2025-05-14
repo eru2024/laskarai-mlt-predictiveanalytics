@@ -57,14 +57,94 @@ Finally, the diagram outlines the Solution Statements, which are the practical s
 4. **Evaluate different machine learning algorithms by Precision, Recall, and F1-Score.** After training the models, their performance will be assessed using key evaluation metrics. Precision and Recall are particularly important for this problem to ensure the model correctly identifies actual cancellations (Recall) and that its predictions of cancellation are reliable (Precision), while Accuracy and F1-Score provide overall performance insights.
 
 ## Data Understanding
-Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan dalam proyek. Sertakan juga sumber atau tautan untuk mengunduh dataset. Contoh: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data).
+The [Hotel Booking Demand](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand) dataset (119 390 records, 32 variables) captures detailed reservation information for two Portuguese properties—a city hotel and a resort hotel—over a 26-month span (July 1, 2015 through August 31, 2017). It was originally published alongside the “Hotel Booking Demand Datasets” article by Nuno António, Ana Almeida, and Luís Nunes (Data in Brief, Feb 2019) and later cleaned for the #TidyTuesday initiative by Thomas Mock and Antoine Bichat. All personally identifying fields have been removed, making it ideal for modeling cancellations, forecasting demand, pricing analysis, and understanding guest behavior patterns.
 
-Selanjutnya uraikanlah seluruh variabel atau fitur pada data. Sebagai contoh:  
+### Variable Description
 
-### Variabel-variabel pada Restaurant UCI dataset adalah sebagai berikut:
-- accepts : merupakan jenis pembayaran yang diterima pada restoran tertentu.
-- cuisine : merupakan jenis masakan yang disajikan pada restoran.
-- dst
+Based on the journal article ["Hotel booking demand datasets"](https://doi.org/10.1016/j.dib.2018.11.126) as the dataset original source, there are 32 variables or features with discription below:
+
+1. `hotel`. Categorical, Type of hotel (City Hotel or Resort Hotel)
+2. `is_canceled`. Integer, Value indicating if the booking was canceled (1) or not (0)
+3. `lead_time`. Integer, Number of days between booking date and arrival date
+4. `arrival_date_year`. Integer, Year of arrival date
+5. `arrival_date_month`. Categorical, Month of arrival date (January to December)
+6. `arrival_date_week_number`. Integer, Week number of arrival date
+7. `arrival_date_day_of_month`. Integer, Day of arrival date
+8. `stays_in_weekend_nights`. Integer, Number of weekend nights (Saturday or Sunday) the customer stayed or booked to stay at the hotel
+9. `stays_in_week_nights`. Integer, Number of week nights (Monday to Friday) the customer stayed or booked to stay at the hotel
+10. `adults`. Integer, Number of adults
+11. `children`. Integer, Number of children
+12. `babies`. Integer, Number of babies
+13. `meal`. Categorical, Type of meal booked. Categories are Undefined, BB (Bed & Breakfast), HB (Half Board), FB (Full Board)
+14. `country`. Categorical, Country of origin. Categories are represented in the ISO 3166 – 1 alpha-3 format
+15. `market_segment`. Categorical, Market segment designation. In categories such as Online TA, Offline TA/TO, Groups, Corporate, Complementary, Aviation
+16. `distribution_channel`. Categorical, Booking distribution channel. Categories are Corporate, GDS, TA/TO, Direct, Undefined
+17. `is_repeated_guest`. Integer, Value indicating if the booking person is a repeated guest (1) or not (0)
+18. `previous_cancellations`. Integer, Number of previous bookings that were canceled by the customer prior to the current booking
+19. `previous_bookings_not_canceled`. Integer, Number of previous bookings that were not canceled by the customer prior to the current booking
+20. `reserved_room_type`. Categorical, Code of room type reserved. Codes are for illustration purposes only.
+21. `assigned_room_type`. Categorical, Code of room type assigned. Codes are for illustration purposes only.
+22. `booking_changes`. Integer, Number of changes/amendments made to the booking from the moment it was entered on the PMS until the moment of check-in or cancellation
+23. `deposit_type`. Categorical, Indication on if the customer made a deposit to guarantee the booking. Categories are No Deposit, Non Refund, Refundable
+24. `agent`. Categorical, ID of the travel agency that made the booking
+25. `company`. Categorical, ID of the company/entity that made the booking or responsible for paying the booking
+26. `days_in_waiting_list`. Integer, Number of days the booking was in the waiting list before it was confirmed to the customer
+27. `customer_type`. Categorical, Type of customer, assuming one of four categories: Contract, Group, Transient, Transient-Party
+28. `adr`. Numeric, Average Daily Rate as defined by dividing the sum of all lodging transactions by the total number of staying nights
+29. `required_car_parking_spaces`. Integer, Number of required car parking spaces
+30. `total_of_special_requests`. Integer, Number of special requests made by the customer (e.g. twin bed or high floor)
+31. `reservation_status`. Categorical, Reservation status (Canceled, Check-Out, No-Show)
+32. `reservation_status_date`. Date, Date at which the last status was set. This variable can be used in conjunction with the `is_canceled` variable to understand when a booking was really canceled.
+
+### Missing Value and Outliers
+| Feature  | Missing Values | Missing Handling | Notes                         |
+|----------|----------------|------------------|-------------------------------|
+| children | 4              | row removal      | small % of missing values     |
+| country  | 488            | row removal      | small % of missing values     |
+| agent    | 16,340         | column removal   | high cardinality              |
+| company  | 112,593        | column removal   | high cardinality              |
+
+Missing data was handled with two strategies based on the size and complexity of each gap. For **children** and **country**, the missing rates were very small (4 and 488 missing values out of 119 390 records). Those rows were dropped, preserving almost all information and avoiding unnecessary imputation.
+
+In contrast, **agent** and **company** had high missing rates (≈13.7 % and ≈94.3 % of records) and thousands of unique values. Imputation or encoding would add complexity and risk overfitting. Those columns were removed entirely, focusing the model on features with more complete and informative data.
+
+| Feature | Outlier                             | Handling      | Notes                                   |
+|---------|-------------------------------------|---------------|-----------------------------------------|
+| adr     | negative value                      | row removal   | most likely a data error                |
+| adr     | 5400                                | winsorizing   | replace with second highest (510)       |
+| adults  | Adults=0, Children=0, Babies=0      | row removal   | unrealistic combinations                |
+| adults  | Adults=0, Children>0, Babies>0      | keep          | edge cases (school/child‐only bookings) |
+| adults  | > 10                                | row removal   | rare occurrences                        |
+
+Outliers in **adr** were handled by removing rows with negative values (likely data errors) and winsorizing extreme highs (5400 replaced with the second-highest value, 510) to limit the influence of improbable rates on the model.
+
+For **adults**, rows with unrealistic combinations (0 adults, 0 children, 0 babies) and rare extreme cases (>10 adults) were removed because they either reflect data entry errors or occur too infrequently to support reliable learning. Cases with 0 adults but children and/or babies were retained to capture valid child-only or unaccompanied-minor bookings.
+
+### Univariate Analysis
+#### Categorical Features
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/univariate_categorical.jpg" alt="Problem Analysis Diagram" width="100%">
+</div>
+<br>
+
+Categorical features exhibited diverse distributions: **hotel** bookings split between City (66.7 %) and Resort (33.3 %); **arrival_date_month** peaked in August (11.7 %) and July (10.6 %), reflecting seasonality; **meal** plans were dominated by BB (77.3 %) with smaller HB (12.2 %), SC (8.9 %) and rare Undefined/FB (<2 %); **market_segment** was led by Online TA (47.5 %) and Offline TA/TO (20.3 %), with Complementary/Aviation below 1 %; **distribution_channel** was overwhelmingly TA/TO (82.2 %); top two **reserved_room_type** and **assigned_room_type** (A and D) covered over 88 % of bookings; **deposit_type** was mostly No Deposit (87.6 %); **customer_type** was mainly Transient (75.0 %) and Transient-Party (21.1 %); **reservation_status** was chiefly Check-Out (62.8 %) and Canceled (36.2 %).
+
+#### Numerical Features
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/univariate_numerical.jpg" alt="Problem Analysis Diagram" width="100%">
+</div>
+<br>
+
+Numerical features display a variety of distribution shapes and scales. The cancellation flag (**is_canceled**) is bimodal, with roughly 63 000 non-cancellations and 43 000 cancellations, underscoring class imbalance considerations. **Lead_time** is heavily right-skewed: most bookings occur within 50 days of arrival, but a long tail extends past 500 days. Arrival dates by year cluster around 2016 and 2017, while week-of-year and day-of-month are nearly uniform, capturing seasonal patterns without obvious peaks (aside from a modest spike in week 27). Stay durations show that most guests book 0–2 weekend nights and 2–4 week nights, with extreme stays being rare. Party size features (**adults**, **children**, **babies**, **total_guests**) concentrate at 2 adults and zero children/babies, with very few large groups. Low-variance counts (e.g. **is_repeated_guest**, **previous_cancellations**, **booking_changes**, **days_in_waiting_list**, **required_car_parking_spaces**) are zero for the vast majority of records, indicating potential for binary encoding or capping.
+
+Continuous variables like **lead_time**, **adr**, and **days_in_waiting_list** may benefit from log transformation or binning to reduce skew and stabilize variance. Rare extreme values in **stays_in_weekend_nights** or **stays_in_week_nights** can be capped or grouped into an “Other” category. Year and week-number fields can be treated as categorical to capture seasonal effects. Low-frequency numeric indicators (previous cancellations, special requests) could be recast as binary flags or binned into a few categories to simplify the feature set and prevent overfitting.  
+
+### Multivariate Analysis
+#### Categorical Features
+<div align="center">
+    <img src="https://raw.githubusercontent.com/eru2024/laskarai-mlt-predictiveanalytics/master/img/multivariate_categorical.jpg" alt="Problem Analysis Diagram" width="100%">
+</div>
+<br>
 
 **Rubrik/Kriteria Tambahan (Opsional)**:
 - Melakukan beberapa tahapan yang diperlukan untuk memahami data, contohnya teknik visualisasi data atau exploratory data analysis.
