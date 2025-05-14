@@ -52,10 +52,9 @@ To address these problem statements, the project defines specific Goals:
 ### Solution Statements
 Finally, the diagram outlines the Solution Statements, which are the practical steps planned to achieve the stated goals:
 1. **Filter features based on appropriate statistical measures.** This involves using statistical techniques to evaluate the relevance and predictive power of different pieces of data (features) to help identify the most influential ones.
-2. **Search for well-performing subsets of features by RFE.** Recursive Feature Elimination (RFE) is a technique used to find the best combination of features that contribute most effectively to the model's performance, further refining the set of influential factors.
+2. **Evaluate feature importance after selecting best model.** By using permutation importance, features are ranked based on importance mean (performance changes on each feature).
 3. **Use at least five machine learning algorithms with hyperparameter tuning if needed.** To find the "best model," the approach involves experimenting with multiple machine learning techniques. Hyperparameter tuning is a process to optimize these algorithms for the specific dataset to achieve the best possible performance.
-4. **Evaluate different machine learning algorithms by Accuracy, Precision, Recall, and F1-Score.** After training the models, their performance will be assessed using key evaluation metrics. Precision and Recall are particularly important for this problem to ensure the model correctly identifies actual cancellations (Recall) and that its predictions of cancellation are reliable (Precision), while Accuracy and F1-Score provide overall performance insights.
-
+4. **Evaluate different machine learning algorithms by Precision, Recall, and F1-Score.** After training the models, their performance will be assessed using key evaluation metrics. Precision and Recall are particularly important for this problem to ensure the model correctly identifies actual cancellations (Recall) and that its predictions of cancellation are reliable (Precision), while Accuracy and F1-Score provide overall performance insights.
 
 ## Data Understanding
 Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan dalam proyek. Sertakan juga sumber atau tautan untuk mengunduh dataset. Contoh: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data).
