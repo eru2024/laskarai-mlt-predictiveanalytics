@@ -226,33 +226,122 @@ New binary and aggregated features were suggested to capture key behaviors:
 This summary shows balancing of dimensionality reduction, meaningful feature representation, and model robustness.
 
 ## Data Preparation
-### Feature Engineering Summary
 
-Pada bagian ini Anda menerapkan dan menyebutkan teknik data preparation yang dilakukan. Teknik yang digunakan pada notebook dan laporan harus berurutan.
+Based on Summary of EDA, data preparation for this project consists of add new features, scaling for numerical features, and encoding for categorical features. The data preparation detail can bee seen in tabel below.
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan proses data preparation yang dilakukan
-- Menjelaskan alasan mengapa diperlukan tahapan data preparation tersebut.
+| Feature                          | Preparation                                              | Reason                                                                          |
+|----------------------------------|----------------------------------------------------------|---------------------------------------------------------------------------------|
+| is_canceled                      | target variable                                          | defines prediction objective                                                    |
+| hotel                            | binary encoding                                          | converts categories to numeric format                                           |
+| arrival_date_month               | convert to numeric                                       | enables chronological ordering and model interpretation                         |
+| meal                             | one-hot encoding (BB, HB, SC, Other)                     | preserves category distinctions without ordinal bias                            |
+| market_segment                   | one-hot encoding (Online TA, Offline TA/TO, Direct, Corporate, Other) | captures booking channel effects                                    |
+| reserved_room_type               | one-hot encoding (A, D, Other)                           | differentiates room preferences                                                 |
+| deposit_type                     | one-hot encoding (No Deposit, Refundable, Non Refund)    | reflects payment commitment levels                                              |
+| customer_type                    | one-hot encoding (Transient, Transient-Party, Other)     | models different customer behaviors                                             |
+| lead_time                        | scaling                                                  | standardizes range for improved model convergence                               |
+| arrival_date_week_number         | retain as-is                                            | captures seasonal booking patterns                                              |
+| arrival_date_day_of_month        | retain as-is                                            | captures intra-month booking trends                                             |
+| previous_cancellations           | retain as-is                                            | indicates cancellation history impact                                           |
+| previous_bookings_not_canceled   | retain as-is                                            | balances cancellation history signal                                           |
+| booking_changes                  | retain as-is                                            | measures booking flexibility                                                   |
+| days_in_waiting_list             | retain as-is                                            | reflects booking demand vs. availability                                        |
+| adr                              | scaling                                                  | normalizes price distribution                                                   |
+| required_car_parking_spaces      | retain as-is                                            | indicates extra service requests                                                |
+| total_of_special_requests        | retain as-is                                            | summarizes guest preferences                                                    |
+| match_room_type                  | binary encoding (0: reserved ≠ assigned, 1: reserved = assigned) | detects room allocation discrepancies                                   |
+| has_weekend_stay                 | binary encoding (0: no weekend nights, 1: any weekend nights) | highlights weekend travel behavior                                    |
+| total_stay_duration              | stays_in_weekend_nights + stays_in_week_nights           | aggregates total nights stayed                                                  |
+| has_babies                       | binary encoding (0: no babies, 1: babies > 0)            | simplifies family composition signal                                            |
+| total_guests                     | retain as-is                                            | represents group size directly                                                  |
+| PRT                              | binary encoding (0: country ≠ 'PRT', 1: country = 'PRT')  | captures dominant market segment (Portugal > 60% bookings)                       |
 
 ## Modeling
-Tahapan ini membahas mengenai model machine learning yang digunakan untuk menyelesaikan permasalahan. Anda perlu menjelaskan tahapan dan parameter yang digunakan pada proses pemodelan.
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan kelebihan dan kekurangan dari setiap algoritma yang digunakan.
-- Jika menggunakan satu algoritma pada solution statement, lakukan proses improvement terhadap model dengan hyperparameter tuning. **Jelaskan proses improvement yang dilakukan**.
-- Jika menggunakan dua atau lebih algoritma pada solution statement, maka pilih model terbaik sebagai solusi. **Jelaskan mengapa memilih model tersebut sebagai model terbaik**.
+Before model training, the dataset was balanced using the Synthetic Minority Oversampling Technique (SMOTE) to address the class imbalance between canceled and non-canceled bookings. The processed dataset was then split into training and testing subsets using an 80/20 ratio to ensure a fair evaluation of model performance on unseen data.
+
+### Algorithm Options
+
+Several machine learning algorithms were applied to build classification models:
+
+1. **Logistic Regression** offers simplicity and interpretability, making it a useful baseline model. It performs well when the relationship between features and the target variable is linear. However, its limitations become apparent when dealing with complex, non-linear patterns in the data.
+
+2. **K-Nearest Neighbors (KNN)** is intuitive and non-parametric, making no assumptions about data distribution. It can capture complex relationships by comparing data points based on distance. However, it is computationally expensive for large datasets and sensitive to feature scaling and irrelevant features.
+
+3. **Decision Tree Classifier** is easy to interpret and handles both numerical and categorical features without requiring normalization. It can model non-linear relationships but is prone to overfitting, especially on small datasets or when not properly pruned.
+
+4. **Random Forest Classifier** builds an ensemble of decision trees and averages their outputs to improve generalization. It reduces overfitting and improves accuracy compared to a single decision tree. However, it sacrifices interpretability and can be slower to train and predict due to its complexity.
+
+5. **Adaptive Boosting (AdaBoost)** focuses on correcting errors made by previous classifiers by assigning higher weights to misclassified instances. It can improve model performance on difficult samples but is sensitive to noisy data and outliers, which may degrade its effectiveness.
+
+6. **Gradient Boosting Algorithm** builds models sequentially by minimizing prediction errors through gradient descent. It typically provides high accuracy and handles both numerical and categorical features well. However, it requires careful tuning of hyperparameters and is more computationally intensive compared to simpler models.
+
+Each algorithm brings a balance between performance, interpretability, and computational cost. Multiple models were tested to evaluate which approach yields the most effective prediction of booking cancellations. The performance for each algorithm can be seen in table below.
+
+| Model                | Accuracy | Precision | Recall   | F1-Score |
+|----------------------|----------|-----------|----------|----------|
+| Logistic Regression  | 0.822899 | 0.834688  | 0.802965 | 0.818519 |
+| KNN                  | 0.845824 | 0.818566  | 0.886523 | 0.851190 |
+| Decision Tree        | 0.867945 | 0.868243  | 0.865903 | 0.867072 |
+| Random Forest        | 0.906757 | 0.913002  | 0.898113 | 0.905496 |
+| AdaBoost             | 0.816597 | 0.842598  | 0.776280 | 0.808081 |
+| Gradient Boosting    | 0.845958 | 0.865127  | 0.817790 | 0.840793 |
+
+### Choosing the Best Model
+
+Model evaluation was based on four key metrics: accuracy, precision, recall, and F1-score. These metrics offer a balanced view of model performance, especially in the context of imbalanced classification such as predicting booking cancellations.
+
+1. **Logistic Regression** achieved an accuracy of 82.29% with a precision of 83.47% and recall of 80.30%, resulting in an F1-score of 81.85%. This performance is solid for a baseline model, but it struggles to capture more complex patterns in the data.
+
+2. **K-Nearest Neighbors (KNN)** performed better, with a recall of 88.65%, indicating it effectively identified most cancellations. However, its precision (81.86%) was slightly lower, leading to more false positives. Its overall F1-score was 85.12%, suggesting a stronger performance than logistic regression, but it remains sensitive to data scaling and outliers.
+
+3. **Decision Tree Classifier** achieved balanced results across all metrics, with an accuracy of 86.79% and F1-score of 86.71%. It demonstrates the ability to capture non-linear relationships, though it may risk overfitting without ensemble support.
+
+4. **Random Forest Classifier** outperformed all other models, with the highest accuracy (90.68%), precision (91.30%), recall (89.81%), and F1-score (90.55%). This model benefits from its ensemble approach, which reduces overfitting and improves generalization, making it the most reliable choice for this classification task. An ensemble approach combines the outputs of multiple weaker models—in this case, decision trees—to produce a stronger and more accurate final prediction. Random Forest builds many decision trees using different random subsets of the data and features, then aggregates their results, which reduces variance and minimizes overfitting that often affects individual trees.
+
+5. **Adaptive Boosting (AdaBoost)** produced the lowest recall (77.63%) despite a decent precision (84.26%), which suggests it struggled to identify all cancellation cases. Its overall F1-score (80.81%) was the lowest among the tested ensemble models.
+
+6. **Gradient Boosting** showed competitive results with an F1-score of 84.08%, better than logistic regression and AdaBoost, but still trailing behind Random Forest in overall performance.
+
+Considering all evaluation metrics, **Random Forest Classifier** is selected as the best model. It consistently achieved the highest scores across all metrics, offering strong predictive capability, balanced precision and recall, and robustness against overfitting through its randomized ensemble design.
 
 ## Evaluation
-Pada bagian ini anda perlu menyebutkan metrik evaluasi yang digunakan. Lalu anda perlu menjelaskan hasil proyek berdasarkan metrik evaluasi yang digunakan.
 
-Sebagai contoh, Anda memiih kasus klasifikasi dan menggunakan metrik **akurasi, precision, recall, dan F1 score**. Jelaskan mengenai beberapa hal berikut:
-- Penjelasan mengenai metrik yang digunakan
-- Menjelaskan hasil proyek berdasarkan metrik evaluasi
+### Best Model Performance
+To evaluate the hotel booking cancellation prediction model, three key classification metrics were used: **precision**, **recall**, and **F1-score**. These metrics were selected based on the nature of the business problem, where incorrect predictions can lead to significant operational and financial consequences for hotel management.
 
-Ingatlah, metrik evaluasi yang digunakan harus sesuai dengan konteks data, problem statement, dan solusi yang diinginkan.
+- **Precision** measures the proportion of predicted cancellations that were actually canceled. High precision is important to prevent overestimating cancellations, which could lead to underutilized rooms and lost revenue.  
+  *Formula: True Positives / (True Positives + False Positives)*
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan formula metrik dan bagaimana metrik tersebut bekerja.
+- **Recall** measures the proportion of actual cancellations that were correctly identified by the model. High recall ensures that most cancellations are detected, which is critical for reducing overbooking and improving planning.  
+  *Formula: True Positives / (True Positives + False Negatives)*
+
+- **F1-score** is the harmonic mean of precision and recall. It provides a single score that balances both concerns, especially valuable when the costs of false positives and false negatives are high.  
+  *Formula: 2 * (Precision * Recall) / (Precision + Recall)*
+
+Among all the models tested, the **Random Forest Classifier** delivered the best performance with a **precision of 0.9130**, **recall of 0.8981**, and an **F1-score of 0.9055**. These results indicate that the model not only accurately identifies most actual cancellations but also minimizes the number of bookings incorrectly predicted as cancellations.
+
+In a hotel booking context, such predictive accuracy has direct business implications. **Incorrectly predicting a cancellation (false positive)** can cause the hotel to unnecessarily release or reallocate a room, resulting in **lost revenue opportunities**. Conversely, **failing to predict a cancellation (false negative)** may lead to **overbooking**, strained customer service, or even reputational damage if accommodations are unavailable upon guest arrival. 
+
+By achieving high precision and recall, the Random Forest model supports **efficient resource planning**, such as staff scheduling, room inventory management, and revenue forecasting. Its ensemble approach aggregates multiple decision trees, improving generalization and reducing overfitting, which contributes to its superior and robust performance in operational settings.
+
+Overall, the Random Forest model provides a reliable solution for anticipating cancellations, enabling hotels to optimize capacity, improve guest experience, and reduce unnecessary operational costs.
+
+### Feature Importance
+
+To interpret the results of the hotel booking cancellation prediction model, feature importance was evaluated using **permutation importance** with **F1-score** as the baseline metric. Permutation importance works by randomly shuffling the values of each feature and measuring the change in model performance. A significant drop in F1-score indicates that the shuffled feature had a strong impact on the model, making it important. This method is model-agnostic and provides an intuitive measure of feature influence based on how much performance deteriorates when feature information is disrupted.
+
+F1-score was chosen as the baseline for permutation importance due to its balanced consideration of both **precision** and **recall**. In the context of predicting booking cancellations, the cost of false positives (unnecessarily releasing rooms) and false negatives (failing to anticipate a cancellation) are both high. Therefore, a balanced metric like F1-score is more appropriate than accuracy, which can be misleading when dealing with class imbalance or unequal error costs.
+
+The permutation importance results highlighted the three most important features:
+
+1. **PRT (Portugal)** – With an importance mean of **0.0736**, the feature indicating whether a booking was made from Portugal plays a significant role in cancellation prediction. Given that over 60% of bookings come from Portugal, this binary feature captures substantial regional patterns that influence booking behavior.
+
+2. **lead_time_norm** – This normalized lead time feature had an importance mean of **0.0715**, showing that the time between booking and check-in is a strong predictor of cancellations. Longer lead times typically increase the likelihood of changes in customer plans, resulting in higher cancellation risks.
+
+3. **total_of_special_requests** – With an importance mean of **0.0686**, the number of special requests made by the guest reflects engagement and commitment. Bookings with more requests are less likely to be canceled, possibly because such guests have stronger intentions to complete their stay.
+
+These insights support more informed decisions in hotel operations, particularly in **customer segmentation, targeted retention efforts**, and **resource planning**, allowing hotels to better manage expected occupancy and reduce the financial impact of last-minute cancellations.
 
 ## References
 Antonio, N., De Almeida, A., & Nunes, L. (2019). Big Data in Hotel Revenue Management: Exploring Cancellation Drivers to Gain Insights Into Booking Cancellation Behavior. Cornell Hospitality Quarterly, 60(4), 298–319. https://doi.org/10.1177/1938965519851466
