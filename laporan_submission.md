@@ -319,23 +319,6 @@ The implementation uses `GradientBoostingClassifier` with the default parameters
 
 Gradient Boosting offers strong predictive performance, particularly for structured tabular data. It is effective at reducing both bias and variance and can model complex non-linear relationships. However, it is more computationally intensive than simpler models and may require careful tuning to prevent overfitting. Gradient Boosting is also sensitive to noisy data and outliers, and performance can be impacted in imbalanced datasets without pre-processing techniques like SMOTE.
 
-
-### Algorithm Options
-
-Several machine learning algorithms were applied to build classification models:
-
-1. **Logistic Regression** offers simplicity and interpretability, making it a useful baseline model. It performs well when the relationship between features and the target variable is linear. However, its limitations become apparent when dealing with complex, non-linear patterns in the data.
-
-2. **K-Nearest Neighbors (KNN)** is intuitive and non-parametric, making no assumptions about data distribution. It can capture complex relationships by comparing data points based on distance. However, it is computationally expensive for large datasets and sensitive to feature scaling and irrelevant features.
-
-3. **Decision Tree Classifier** is easy to interpret and handles both numerical and categorical features without requiring normalization. It can model non-linear relationships but is prone to overfitting, especially on small datasets or when not properly pruned.
-
-4. **Random Forest Classifier** builds an ensemble of decision trees and averages their outputs to improve generalization. It reduces overfitting and improves accuracy compared to a single decision tree. However, it sacrifices interpretability and can be slower to train and predict due to its complexity.
-
-5. **Adaptive Boosting (AdaBoost)** focuses on correcting errors made by previous classifiers by assigning higher weights to misclassified instances. It can improve model performance on difficult samples but is sensitive to noisy data and outliers, which may degrade its effectiveness.
-
-6. **Gradient Boosting Algorithm** builds models sequentially by minimizing prediction errors through gradient descent. It typically provides high accuracy and handles both numerical and categorical features well. However, it requires careful tuning of hyperparameters and is more computationally intensive compared to simpler models.
-
 ## Evaluation
 
 ### Choosing the Best Model
