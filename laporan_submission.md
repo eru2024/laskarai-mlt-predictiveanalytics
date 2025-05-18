@@ -268,9 +268,57 @@ Based on Summary of EDA, data preparation for this project consists of add new f
 | total_guests                     | retain as-is                                            | represents group size directly                                                  |
 | PRT                              | binary encoding (0: country ≠ 'PRT', 1: country = 'PRT')  | captures dominant market segment (Portugal > 60% bookings)                       |
 
-## Modeling
-
 Before model training, the dataset was balanced using the Synthetic Minority Oversampling Technique (SMOTE) to address the class imbalance between canceled and non-canceled bookings. The processed dataset was then split into training and testing subsets using an 80/20 ratio to ensure a fair evaluation of model performance on unseen data.
+
+## Modeling
+### Model 1: Logistic Regression
+
+Logistic Regression is a linear classification algorithm used to model the probability of a binary outcome. It estimates the relationship between input features and the log-odds of the target variable using a logistic (sigmoid) function. The algorithm assigns weights to input features and applies the sigmoid function to map the result into a probability between 0 and 1, which is then used for classification.
+
+In this model, a pipeline is used to standardize the input features with `StandardScaler()` before applying `LogisticRegression()`. Standardization ensures that all features contribute equally to the model, which improves convergence and performance for algorithms that are sensitive to feature scale. All other parameters of the Logistic Regression classifier are left at their default settings, which include using the L2 regularization (`penalty='l2'`), the 'lbfgs' solver, and no class weighting.
+
+The main advantages of Logistic Regression include its simplicity, efficiency, and interpretability. It performs well when the relationship between features and the target variable is approximately linear and provides probabilistic outputs. However, it can struggle with non-linear relationships, high-dimensional data with multicollinearity, and imbalanced class distributions. In cases of class imbalance, such as booking cancellation data, the model's performance may be biased toward the majority class. To address this, SMOTE (Synthetic Minority Oversampling Technique) is used to balance the classes during training by synthetically generating samples for the minority class, improving the model’s ability to generalize to underrepresented cases.
+
+### Model 2: K-Nearest Neighbors (KNN)
+
+K-Nearest Neighbors (KNN) is a non-parametric, instance-based learning algorithm that makes predictions based on the closest training examples in the feature space. For classification tasks, the algorithm determines the class of a new data point by identifying the majority class among its *k* nearest neighbors. Distance between data points is typically calculated using Euclidean distance, although other metrics can be used.
+
+In this implementation, `KNeighborsRegressor` with `n_neighbors=3` is used. This setting instructs the model to consider the three nearest data points in the training set when predicting the outcome for a new instance. All other parameters are left at their default values, including `weights='uniform'`, which means each of the three neighbors contributes equally to the prediction.
+
+The main advantage of KNN is its simplicity and effectiveness for datasets with clear patterns and well-separated classes. It makes no assumptions about the underlying data distribution and adapts naturally to complex decision boundaries. However, KNN is sensitive to the choice of *k*, the presence of irrelevant or highly correlated features, and variations in feature scale. It is also computationally expensive for large datasets, as it requires storing the entire training set and computing distances at prediction time. Moreover, KNN does not handle imbalanced datasets well by default, so prior use of SMOTE to balance the class distribution is important to improve predictive fairness and performance.
+
+### Model 3: Decision Tree Classifier
+
+Decision Tree Classifier is a supervised learning algorithm that splits the dataset into subsets based on the value of input features, forming a tree-like structure. At each node, the algorithm selects a feature and a threshold that best separate the data into classes by optimizing a metric such as Gini impurity or entropy. The process continues recursively until the stopping criteria are met, such as a maximum depth or minimum samples per leaf.
+
+In this model, `DecisionTreeClassifier` is initialized with `random_state=42` to ensure reproducibility. All other parameters use default values, including the splitting criterion (`criterion='gini'`), which measures the impurity of a node. The model automatically determines the best splits and the tree's depth based on the training data unless explicitly constrained.
+
+Decision trees are easy to interpret, handle both numerical and categorical data, and require little data preprocessing. They can capture non-linear relationships and interactions between features. However, they are prone to overfitting, especially if not pruned or limited in depth. Overfitting can reduce the model’s ability to generalize to unseen data. Decision trees also tend to be unstable to slight changes in data, which can lead to different tree structures. Although class imbalance can negatively affect the split quality, using SMOTE before training helps mitigate this issue by balancing the class distribution.
+
+### Model 4: Random Forest Classifier
+
+Random Forest is an ensemble learning algorithm that builds multiple decision trees during training and combines their predictions to improve accuracy and stability. Each tree is trained on a random subset of the data using the bagging method (bootstrap aggregation), and a random subset of features is considered at each split to ensure diversity among trees. The final prediction is made by majority vote in classification problems.
+
+In this implementation, `RandomForestClassifier` is initialized with `random_state=42` to ensure reproducibility. Other parameters are set to their default values, including the number of trees (`n_estimators=100`) and the splitting criterion (`criterion='gini'`). These defaults provide a strong baseline performance without manual tuning.
+
+Random Forest offers several advantages: it reduces overfitting compared to a single decision tree, handles large datasets and high-dimensional feature spaces well, and provides feature importance scores. It also manages missing values and maintains good performance even when data contains outliers or noise. However, it can be computationally intensive with large datasets, and the resulting model is less interpretable than a single decision tree. While class imbalance may affect the performance, using SMOTE before training helps address this limitation by balancing the dataset.
+
+### Model 5: Adaptive Boosting (AdaBoost) Classifier
+
+Adaptive Boosting, or AdaBoost, is an ensemble method that combines multiple weak learners—typically shallow decision trees—to create a strong classifier. The algorithm works by training weak learners sequentially, with each learner focusing more on instances misclassified by the previous ones. It assigns weights to training instances and updates these weights after each round based on the classification errors, allowing the model to concentrate on difficult cases.
+
+In the implementation, `AdaBoostClassifier` is used with the `random_state=42` parameter to ensure reproducibility. All other parameters are kept at their default values. This includes `n_estimators=50`, which defines the number of weak learners (typically decision stumps), and `learning_rate=1.0`, which controls the contribution of each learner.
+
+AdaBoost is advantageous in improving the accuracy of weak learners, reducing bias, and being less prone to overfitting on clean datasets. It can handle both binary and multiclass classification tasks effectively. However, it is sensitive to noisy data and outliers, as it puts increasing focus on difficult samples. Additionally, its sequential nature may lead to longer training times compared to parallel ensemble methods like Random Forest. Class imbalance can also affect performance, but pre-processing with techniques like SMOTE helps mitigate this issue.
+
+### Model 6: Gradient Boosting Classifier
+
+Gradient Boosting is an ensemble machine learning algorithm that builds models sequentially, where each new model attempts to correct the errors made by the previous one. It works by optimizing a loss function through gradient descent, using shallow decision trees as weak learners. The algorithm combines these learners to minimize prediction errors iteratively.
+
+The implementation uses `GradientBoostingClassifier` with the default parameters, except for `random_state=42` to ensure reproducibility. The default configuration includes `n_estimators=100`, which determines the number of boosting stages, `learning_rate=0.1`, which controls the contribution of each tree, and `max_depth=3`, which restricts the complexity of individual decision trees.
+
+Gradient Boosting offers strong predictive performance, particularly for structured tabular data. It is effective at reducing both bias and variance and can model complex non-linear relationships. However, it is more computationally intensive than simpler models and may require careful tuning to prevent overfitting. Gradient Boosting is also sensitive to noisy data and outliers, and performance can be impacted in imbalanced datasets without pre-processing techniques like SMOTE.
+
 
 ### Algorithm Options
 
