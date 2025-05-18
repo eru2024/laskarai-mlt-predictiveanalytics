@@ -288,6 +288,9 @@ Several machine learning algorithms were applied to build classification models:
 
 6. **Gradient Boosting Algorithm** builds models sequentially by minimizing prediction errors through gradient descent. It typically provides high accuracy and handles both numerical and categorical features well. However, it requires careful tuning of hyperparameters and is more computationally intensive compared to simpler models.
 
+## Evaluation
+
+### Choosing the Best Model
 Each algorithm brings a balance between performance, interpretability, and computational cost. Multiple models were tested to evaluate which approach yields the most effective prediction of booking cancellations. The performance for each algorithm can be seen in table below.
 
 | Model                | Accuracy | Precision | Recall   | F1-Score |
@@ -298,8 +301,6 @@ Each algorithm brings a balance between performance, interpretability, and compu
 | Random Forest        | 0.906757 | 0.913002  | 0.898113 | 0.905496 |
 | AdaBoost             | 0.816597 | 0.842598  | 0.776280 | 0.808081 |
 | Gradient Boosting    | 0.845958 | 0.865127  | 0.817790 | 0.840793 |
-
-### Choosing the Best Model
 
 Model evaluation was based on four key metrics: accuracy, precision, recall, and F1-score. These metrics offer a balanced view of model performance, especially in the context of imbalanced classification such as predicting booking cancellations.
 
@@ -316,8 +317,6 @@ Model evaluation was based on four key metrics: accuracy, precision, recall, and
 6. **Gradient Boosting** showed competitive results with an F1-score of 84.08%, better than logistic regression and AdaBoost, but still trailing behind Random Forest in overall performance.
 
 Considering all evaluation metrics, **Random Forest Classifier** is selected as the best model. It consistently achieved the highest scores across all metrics, offering strong predictive capability, balanced precision and recall, and robustness against overfitting through its randomized ensemble design.
-
-## Evaluation
 
 ### Best Model Performance
 To evaluate the hotel booking cancellation prediction model, three key classification metrics were used: **precision**, **recall**, and **F1-score**. These metrics were selected based on the nature of the business problem, where incorrect predictions can lead to significant operational and financial consequences for hotel management.
